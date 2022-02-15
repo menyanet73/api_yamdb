@@ -9,6 +9,6 @@ router.register(r'titles', views.TitleViewSet)
 router.register(r'categories', views.CategoryViewSet)
 router.register(r'genres', views.GenreViewSet)
 
-urlpattens = [
+urlpatterns = [
     path('', include(router.urls)),
 ]
