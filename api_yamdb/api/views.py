@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 
 from api import serializers
 from .viewsets import CreateDeleteListViewset
-from titles.models import Title, Genre, Category
+from reviews.models import Title, Genre, Category
 
 
 class GenreViewSet(CreateDeleteListViewset):
