@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 
-from titles.models import Title, Genre, Category
+from reviews.models import Title, Genre, Category
 
 
 class TitleSerializer(serializers.ModelSerializer):
