@@ -1,18 +1,18 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 
 
 class User(AbstractUser):
-    group = [('user', 'user'), ('moderator', 'moderator'), ('admin', 'admin')]
     bio = models.TextField(
         'Биография',
         blank=True,
     )
-    role = models.CharField(
-        'Роль',
+    group = models.ForeignKey(
+        Group,
         blank=True,
-        choices=group,
-        default='user'
+        related_name='group',
+        verbose_name='Роль',
+        on_delete=models.CASCADE
     )
 
 
