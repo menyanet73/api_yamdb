@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 
-from reviews.models import Title, Genre, Category
+from reviews.models import Title, Genre, Category, Review, Comment
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -11,10 +11,11 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = ('name', 'year', 'description', 'genre', 'category')
 
     def validate_year(self, year):
-        if year > datetime.year:
+        if year > datetime.now().year:
             raise serializers.ValidationError(
                 "Нельзя добавлять произведения, которые еще не созданы."
                 )
+        return year
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -33,3 +34,15 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('name', 'slug')
         lookup_field = 'slug'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+        read_only_fields = ('title',)
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
