@@ -1,5 +1,7 @@
-from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from api_yamdb.settings import GROUPS
 
 
 class User(AbstractUser):
@@ -7,12 +9,11 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    group = models.ForeignKey(
-        Group,
+    role = models.CharField(
+        'Роль',
         blank=True,
-        related_name='group',
-        verbose_name='Роль',
-        on_delete=models.CASCADE
+        choices=GROUPS,
+        default='user'
     )
 
 

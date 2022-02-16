@@ -113,3 +113,5 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+
+GROUPS = [('user', 'user'), ('moderator', 'moderator'), ('admin', 'admin')]
