@@ -1,4 +1,20 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from api_yamdb.settings import GROUPS
+
+
+class User(AbstractUser):
+    bio = models.TextField(
+        'Биография',
+        blank=True,
+    )
+    role = models.CharField(
+        'Роль',
+        blank=True,
+        choices=GROUPS,
+        default='user'
+    )
 
 
 class Category(models.Model):
