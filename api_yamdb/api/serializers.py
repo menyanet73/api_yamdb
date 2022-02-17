@@ -10,13 +10,15 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category')
+        fields = ('name', 'year', 'description', 'genre', 'category', 'rating')
 
     def get_rating(self, obj):
         queryset = obj.reviews.all()
         rates = []
         for query in queryset:
             rates.append(int(query.score))
+        if len(rates) == 0:
+            return 0
         return round(sum(rates)/len(rates))
 
     def validate_year(self, year):
