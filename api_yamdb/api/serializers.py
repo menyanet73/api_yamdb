@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Title, Genre, Category, Review, Comment
@@ -19,13 +18,13 @@ class TitleSerializer(serializers.ModelSerializer):
             rates += int(query.score)
         if rates == 0:
             return 0
-        return round(rates/len(queryset))
+        return round(rates / len(queryset))
 
     def validate_year(self, year):
         if year > datetime.now().year:
             raise serializers.ValidationError(
                 "Нельзя добавлять произведения, которые еще не созданы."
-                )
+            )
         return year
 
 
@@ -40,7 +39,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     slug = serializers.RegexField(regex='^[-a-zA-Z0-9_]+$')
-    
+
     class Meta:
         model = Category
         fields = ('name', 'slug')
@@ -53,7 +52,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('title',)
 
+    def validate_score(self, score):
+        if 1 >= score >= 10:
+            return score
+        raise serializers.ValidationError(
+            "Оценка может быть только целым числом от 1 до 10")
+
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+        read_only_fields = ('review',)

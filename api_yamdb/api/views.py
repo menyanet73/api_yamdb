@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions
 
 from api import serializers
 from .viewsets import CreateDeleteListViewset
-from reviews.models import Title, Genre, Category, Review
+from reviews.models import Title, Genre, Category, Review, Comment
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -25,7 +25,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = serializers.ReviewSerializer
 
     def get_queryset(self):
@@ -37,3 +36,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title_id = self.kwargs.get('title_id')
         current_title = get_object_or_404(Title, pk=title_id)
         serializer.save(title=current_title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CommentSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        queryset = Comment.objects.filter(review=review_id).all()
+        return queryset
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        current_review = get_object_or_404(Review, pk=review_id)
+        serializer.save(review=current_review)
