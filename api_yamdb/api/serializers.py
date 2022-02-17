@@ -19,7 +19,7 @@ class TitleSerializer(serializers.ModelSerializer):
             rates += int(query.score)
         if rates == 0:
             return 0
-        return round(rates/len(queryset)
+        return round(rates/len(queryset))
 
     def validate_year(self, year):
         if year > datetime.now().year:
