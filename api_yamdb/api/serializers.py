@@ -1,14 +1,25 @@
 from datetime import datetime
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Title, Genre, Category, Review, Comment
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category')
+        fields = ('name', 'year', 'description', 'genre', 'category', 'rating')
+
+    def get_rating(self, obj):
+        queryset = obj.reviews.all()
+        rates = 0
+        for query in queryset:
+            rates += int(query.score)
+        if rates == 0:
+            return 0
+        return round(rates/len(queryset))
 
     def validate_year(self, year):
         if year > datetime.now().year:

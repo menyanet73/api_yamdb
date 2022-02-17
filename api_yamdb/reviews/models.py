@@ -11,6 +11,7 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'Роль',
+        max_length=50,
         blank=True,
         choices=GROUPS,
         default='user'
@@ -39,7 +40,7 @@ class Title(models.Model):
     description = models.TextField(blank=True, null=True)
     genre = models.ManyToManyField(Genre, related_name='titles')
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name='titles')
+        Category, on_delete=models.SET_NULL, related_name='titles', null=True)
 
     def __str__(self):
         return self.name
@@ -50,7 +51,7 @@ class Review(models.Model):
         Title, on_delete=models.CASCADE, related_name='reviews')
     text = models.TextField()
     # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    score = models.FloatField()
+    score = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
 
 
