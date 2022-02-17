@@ -14,12 +14,12 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         queryset = obj.reviews.all()
-        rates = []
+        rates = 0
         for query in queryset:
-            rates.append(int(query.score))
-        if len(rates) == 0:
+            rates += int(query.score)
+        if rates == 0:
             return 0
-        return round(sum(rates)/len(rates))
+        return round(rates/len(queryset)
 
     def validate_year(self, year):
         if year > datetime.now().year:
