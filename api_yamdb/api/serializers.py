@@ -6,10 +6,16 @@ from reviews.models import Title, Genre, Category, Review, Comment
 
 class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(),
+        many=True, required=False
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all(), required=False)
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category', 'rating')
+        fields = '__all__'
 
     def get_rating(self, obj):
         queryset = obj.reviews.all()
@@ -33,7 +39,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        fields = '__all__'
         lookup_field = 'slug'
 
 
@@ -42,7 +48,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        fields = '__all__'
         lookup_field = 'slug'
 
 
