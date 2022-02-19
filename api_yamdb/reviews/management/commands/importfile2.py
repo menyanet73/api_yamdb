@@ -2,7 +2,7 @@ import csv, codecs
 from datetime import datetime as dt
 
 from django.core.management.base import BaseCommand
-from reviews.models import Category, Title, Review, User, Genre, Comment, GenreTitle
+from reviews import models
 
 class Command(BaseCommand):
     help = 'Import csv file'
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                         continue
                     fields += f'{header}={field}, '
                 fields = fields[:-2] # Удалим последнюю запятую
-                string_orm = f'{model}.objects.{method}({fields})'
+                string_orm = f'models.{model}.objects.{method}({fields})'
                 print(string_orm)
                 exec(string_orm)
 
