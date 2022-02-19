@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 
 from api import serializers
 from .viewsets import CreateDeleteListViewset
-from reviews.models import Title, Genre, Category, Review, Comment
+from reviews.models import Title, Genre, Category, Review, Comment, User
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -50,3 +50,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id')
         current_review = get_object_or_404(Review, pk=review_id)
         serializer.save(review=current_review)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("username",)
