@@ -2,7 +2,7 @@ import csv, codecs
 from datetime import datetime as dt
 
 from django.core.management.base import BaseCommand
-from reviews.models import Category, Title, Review, User, Genre, Comment
+from reviews.models import Category, Title, Review, User, Genre, Comment, GenreTitle
 
 class Command(BaseCommand):
     help = 'Import csv file'
@@ -51,7 +51,7 @@ class Command(BaseCommand):
 model_names = {
     'category': 'Category',
     'comments': 'Comment',
-    'genre_title': 'Title',
+    'genre_title': 'GenreTitle',
     'genre': 'Genre',
     'review': 'Review',
     'titles': 'Title',
