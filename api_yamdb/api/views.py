@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters
+from rest_framework.pagination import PageNumberPagination
 
 from api import serializers
+from api.permissions import IsUserOrAdmin
 from .viewsets import CreateDeleteListViewset
 from reviews.models import Title, Genre, Category, Review, Comment, User
 
@@ -57,3 +59,5 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
+    pagination_class = PageNumberPagination
+    permission_classes = (IsUserOrAdmin,)
