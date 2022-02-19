@@ -16,7 +16,6 @@ class Command(BaseCommand):
         with codecs.open(path, encoding='utf-8') as f:
             reader = csv.reader(f)
             headers = next(reader)
-            reader.__next__()
 
             ''' Определение имен для орм команды '''
             model = model_names[f'{file_name}']
@@ -26,11 +25,18 @@ class Command(BaseCommand):
 
             ''' Определение полей указываемых в модели'''
             print(headers)
-            fields = []
-
             for row in reader:
-                print(row)
-                # string_orm = f'{model}.objects.{method}({fields})'
+                fields = ''
+                string_orm = ''
+                for header, field in zip(headers,row):
+                    # print(header, field)
+                    if 'id' in header or header in int_fields:
+                        fields += f'{header}={field},'
+                    else:
+                        fields += f'{header}="{field}",'
+                    fields += f'{header}="{field}",'
+                string_orm = f'{model}.objects.{method}({fields})'
+                print(string_orm)
                 # exec(string_orm)
                 # Category.objects.create(name=row[1], slug=row[2])
 
@@ -43,3 +49,5 @@ model_names = {
     'titles': 'Title',
     'users': 'User',
 }
+
+int_fields = ['year', 'pub_date', 'category', 'genre']
