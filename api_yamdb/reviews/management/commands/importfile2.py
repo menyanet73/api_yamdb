@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 string_orm = ''
                 for header, field in zip(headers,row):
                     if 'id'  in header or header in int_fields:
-                        if header == 'category' or header == 'genre':
+                        if header in ['category', 'genre', 'author']:
                             header += '_id'
                             print(header)
                     elif header == 'text':
