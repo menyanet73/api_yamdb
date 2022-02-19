@@ -1,4 +1,5 @@
 import csv, codecs
+from datetime import datetime as dt
 
 from django.core.management.base import BaseCommand
 from reviews.models import Category, Title, Review, User, Genre, Comment
@@ -20,9 +21,7 @@ class Command(BaseCommand):
             ''' Определение имен для орм команды '''
             model = model_names[f'{file_name}']
             method = 'create'
-            if file_name == 'genre_title':
-                method = 'update'
-
+            
             ''' Определение полей указываемых в модели'''
             print(headers)
             for row in reader:
@@ -34,15 +33,20 @@ class Command(BaseCommand):
                             header += '_id'
                             print(header)
                     elif header == 'text':
-                        field = f'"{field}"' # Нужно придумать как решить проблему с переносом строки в этом поле
+                        textfield = f'"{field}"'
+                        fields += f'{header}=textfield, '
+                        continue
                     else:
                         field = f'"{field}"'
+                    if header == 'pub_date':
+                        datefield = dt.strptime(field, '%Y-%m-%dT%H:%M:%S.%fZ')
+                        fields +=  f'{header}=datefield, '
+                        continue
                     fields += f'{header}={field}, '
                 fields = fields[:-2] # Удалим последнюю запятую
                 string_orm = f'{model}.objects.{method}({fields})'
                 print(string_orm)
                 exec(string_orm)
-                # Category.objects.create(name=row[1], slug=row[2])
 
 model_names = {
     'category': 'Category',
