@@ -92,3 +92,11 @@ class AuthUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ('username', 'email')
+
+
+class TokenCreateSerializer(UserSerializer):
+    confirmation_code = serializers.CharField(source='password', required=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'confirmation_code')

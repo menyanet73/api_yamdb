@@ -1,5 +1,3 @@
-import email
-from django import http
 from django.core.mail import send_mail
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework import viewsets, permissions, filters, status
@@ -7,12 +5,12 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework_simplejwt.tokens import Token
 
 from api import serializers
 from api.permissions import IsUserOrAdmin
 from .viewsets import CreateDeleteListViewset
 from reviews.models import Title, Genre, Category, Review, Comment, User
+from api_yamdb.settings import SIMPLE_JWT
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -87,9 +85,11 @@ class AuthUserView(APIView):
             email = serializer.validated_data['email']
             user = User.objects.get(username=registration_username)
             confirmation_code = default_token_generator.make_token(user)
+            user.password = confirmation_code
+            user.save()
             send_mail(
-                subject='Confirmation code',
-                message=f'Your code is {confirmation_code}',
+                subject='Код подтверждения регистрации.',
+                message=f'Ваш код для регистрации: {confirmation_code}',
                 from_email='test@mail.com',
                 recipient_list=[email],
                 fail_silently=False,
