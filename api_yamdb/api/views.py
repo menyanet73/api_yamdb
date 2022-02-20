@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from api import serializers
 from api.permissions import IsUserOrAdmin
@@ -68,18 +69,13 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsUserOrAdmin,)
 
 
-class AuthUserView(APIView):
+class SignUpUserView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request):
-        serializer = serializers.AuthUserSerializer(data=request.data)
-        registration_username = request.data['username']
-        registrstion_email = request.data['email']
-        if registration_username == 'me':
-            raise ValueError('Нельзя использовать это имя.')
-        list_emails = User.objects.values_list('email', flat=True)
-        if registrstion_email in list_emails:
-            raise ValueError(
-                f'''e-mail: {registrstion_email} уже зарегистрирован.
-                Используйте другой email''')
+        serializer = serializers.SignUpUserSerializer(data=request.data)
+        registration_username = request.data.get('username')
+        registrstion_email = request.data.get('email')
         if serializer.is_valid():
             serializer.save()
             email = serializer.validated_data['email']
@@ -95,11 +91,25 @@ class AuthUserView(APIView):
                 fail_silently=False,
             )
             return Response(
-                f'Код подтверждения отправлен на почту {email}',
+                {'email': registrstion_email, 'username': registration_username},
                 status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateToken(APIView):
+class CreateUserToken(APIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request):
-        pass
+        serializer = serializers.TokenCreateSerializer(data=request.data)
+        unique_user = User.objects.get(
+            password=request.data.get('confirmation_code')
+        )
+        if serializer.is_valid():
+            serializer.save()
+            token = RefreshToken.for_user(unique_user)
+            return Response(
+                {'access': str(token.access_token)},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
