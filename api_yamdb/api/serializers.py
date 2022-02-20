@@ -1,7 +1,8 @@
 from datetime import datetime
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Title, Genre, Category, Review, Comment
+from reviews.models import Title, Genre, Category, Review, Comment, User
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -29,7 +30,7 @@ class TitleSerializer(serializers.ModelSerializer):
     def validate_year(self, year):
         if year > datetime.now().year:
             raise serializers.ValidationError(
-                "Нельзя добавлять произведения, которые еще не созданы."
+                'Нельзя добавлять произведения, которые еще не созданы.'
             )
         return year
 
@@ -62,7 +63,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if 1 >= score >= 10:
             return score
         raise serializers.ValidationError(
-            "Оценка может быть только целым числом от 1 до 10")
+            'Оценка может быть только целым числом от 1 до 10')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -70,3 +71,38 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
         read_only_fields = ('review',)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=['username', 'email']
+            )
+        ]
+
+
+class AuthUserSerializer(UserSerializer):
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+
+class TokenCreateSerializer(UserSerializer):
+    confirmation_code = serializers.CharField(source='password', required=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'confirmation_code')

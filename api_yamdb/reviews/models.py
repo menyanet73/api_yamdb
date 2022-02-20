@@ -17,6 +17,14 @@ class User(AbstractUser):
         default='user'
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["email", "username"],
+                name="unique_auth"
+            ),
+        ]
+
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
