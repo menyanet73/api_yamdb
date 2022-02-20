@@ -10,13 +10,15 @@ class GenreViewSet(CreateDeleteListViewset):
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     lookup_field = 'slug'
+    search_fields = ['name',]
 
 
 class CategoryViewSet(CreateDeleteListViewset):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
-
+    search_fields = ['name',]
+    
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
