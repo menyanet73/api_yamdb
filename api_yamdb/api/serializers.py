@@ -54,10 +54,24 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
     class Meta:
         model = Review
-        fields = '__all__'
-        read_only_fields = ('title',)
+        fields = (
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date',
+        )
+        
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['author', 'title']
+            )
+        ]
 
     def validate_score(self, score):
         if 1 >= score >= 10:
@@ -67,10 +81,16 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    
     class Meta:
         model = Comment
-        fields = '__all__'
-        read_only_fields = ('review',)
+        fields = (
+            'id',
+            'text',
+            'author',
+            'pub_date',
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):

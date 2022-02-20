@@ -48,6 +48,7 @@ class Title(models.Model):
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True)
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
 
     def __str__(self):
         return self.name
@@ -72,6 +73,11 @@ class Review(models.Model):
         related_name='reviews')
     score = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = models.UniqueConstraint(
+            fields=['author', 'title'],
+            name='single_review_per_user')
 
 
 class Comment(models.Model):
