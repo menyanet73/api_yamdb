@@ -59,7 +59,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         default=serializers.CurrentUserDefault())
 
-
     class Meta:
         model = Review
         fields = (
@@ -81,7 +80,7 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True)
-    
+
     class Meta:
         model = Comment
         fields = (
@@ -109,7 +108,6 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
-
 
 
 class SignUpUserSerializer(serializers.ModelSerializer):
