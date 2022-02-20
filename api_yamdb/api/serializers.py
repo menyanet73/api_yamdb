@@ -55,6 +55,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    title = serializers.HiddenField(default='')
 
     class Meta:
         model = Review
@@ -64,6 +65,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             'author',
             'score',
             'pub_date',
+            'title'
         )
         
         validators = [
@@ -74,7 +76,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
     def validate_score(self, score):
-        if 1 >= score >= 10:
+        if 1 <= score <= 10:
             return score
         raise serializers.ValidationError(
             'Оценка может быть только целым числом от 1 до 10')
