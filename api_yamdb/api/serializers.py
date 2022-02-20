@@ -92,15 +92,20 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class AuthUserSerializer(UserSerializer):
+class SignUpUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
         fields = ('username', 'email')
 
+    def validate_username(self, username):
+        if self.context.get("username") == username:
+            raise serializers.ValidationError("You can't create exist user.")
+        return username
 
-class TokenCreateSerializer(UserSerializer):
+
+class TokenCreateSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(source='password', required=True)
 
     class Meta:
