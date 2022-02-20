@@ -17,5 +17,7 @@ router.register(
     basename='comments')
 
 urlpatterns = [
+    path('auth/signup/', views.AuthUserView.as_view()),
+    path('auth/token/', views.CreateToken.as_view()),
     path('', include(router.urls)),
 ]

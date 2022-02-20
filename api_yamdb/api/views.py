@@ -1,6 +1,13 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, filters
+import email
+from django import http
+from django.core.mail import send_mail
+from django.shortcuts import get_list_or_404, get_object_or_404
+from rest_framework import viewsets, permissions, filters, status
+from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import Token
 
 from api import serializers
 from api.permissions import IsUserOrAdmin
@@ -61,3 +68,38 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ("username",)
     pagination_class = PageNumberPagination
     permission_classes = (IsUserOrAdmin,)
+
+
+class AuthUserView(APIView):
+    def post(self, request):
+        serializer = serializers.AuthUserSerializer(data=request.data)
+        registration_username = request.data['username']
+        registrstion_email = request.data['email']
+        if registration_username == 'me':
+            raise ValueError('Нельзя использовать это имя.')
+        list_emails = User.objects.values_list('email', flat=True)
+        if registrstion_email in list_emails:
+            raise ValueError(
+                f'''e-mail: {registrstion_email} уже зарегистрирован.
+                Используйте другой email''')
+        if serializer.is_valid():
+            serializer.save()
+            email = serializer.validated_data['email']
+            user = User.objects.get(username=registration_username)
+            confirmation_code = default_token_generator.make_token(user)
+            send_mail(
+                subject='Confirmation code',
+                message=f'Your code is {confirmation_code}',
+                from_email='test@mail.com',
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            return Response(
+                f'Код подтверждения отправлен на почту {email}',
+                status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateToken(APIView):
+    def post(self, request):
+        pass
