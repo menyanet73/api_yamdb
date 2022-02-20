@@ -1,4 +1,7 @@
 from datetime import datetime
+from re import L
+from turtle import title
+from urllib import request
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -54,8 +57,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+<<<<<<< Updated upstream
     author = serializers.SlugRelatedField(slug_field='username', read_only=True)
     title = serializers.HiddenField(default='')
+=======
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault())
+>>>>>>> Stashed changes
 
     class Meta:
         model = Review
@@ -65,6 +75,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             'author',
             'score',
             'pub_date',
+<<<<<<< Updated upstream
             'title'
         )
         
@@ -74,6 +85,9 @@ class ReviewSerializer(serializers.ModelSerializer):
                 fields=['author', 'title']
             )
         ]
+=======
+        )
+>>>>>>> Stashed changes
 
     def validate_score(self, score):
         if 1 <= score <= 10:
@@ -112,6 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
+
 
 
 class SignUpUserSerializer(serializers.ModelSerializer):

@@ -75,9 +75,17 @@ class Review(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+<<<<<<< Updated upstream
         constraints = models.UniqueConstraint(
             fields=['author', 'title'],
             name='single_review_per_user')
+=======
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='single_review_per_user'),
+        ]
+>>>>>>> Stashed changes
 
 
 class Comment(models.Model):
