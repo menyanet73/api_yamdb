@@ -16,6 +16,7 @@ class User(AbstractUser):
         choices=GROUPS,
         default='user'
     )
+    email = models.EmailField(('email address'))
 
     class Meta:
         ordering = ['id']

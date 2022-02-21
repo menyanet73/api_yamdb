@@ -1,6 +1,7 @@
 from rest_framework import permissions
 
 
+#TODO Не уверен что этот пермишн нужен, возможно следует удалить
 class IsUserOrAdmin(permissions.BasePermission):
     message = "У Вас не достаточно прав, обратитесь к администратору."
 
@@ -25,3 +26,19 @@ class IsAuthorOrAdminOrReadOnly(permissions.BasePermission):
                 or request.user.role in ['admin', 'superuser', 'moderator']
                 or obj.author == request.user
                 )
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS
+            or request.user.role in ['admin', 'superuser'])
+
+    def has_object_permission(self, request, view, obj):
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.role in ['admin', 'superuser'])
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role in ['admin', 'superuser']
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.role in ['admin', 'superuser']

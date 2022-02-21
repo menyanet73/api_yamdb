@@ -8,7 +8,8 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api import serializers
-from api.permissions import IsUserOrAdmin, IsAuthorOrAdminOrReadOnly
+from api.permissions import (IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly,
+                            IsAdmin)
 from .viewsets import CreateDeleteListViewset
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from api_yamdb.settings import SIMPLE_JWT
@@ -19,11 +20,13 @@ class GenreViewSet(CreateDeleteListViewset):
     serializer_class = serializers.GenreSerializer
     lookup_field = 'slug'
     search_fields = ['name',]
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CategoryViewSet(CreateDeleteListViewset):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
     lookup_field = 'slug'
     search_fields = ['name',]
 
@@ -31,7 +34,7 @@ class CategoryViewSet(CreateDeleteListViewset):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = serializers.TitleSerializer
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -72,7 +75,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
     pagination_class = PageNumberPagination
-    permission_classes = (IsUserOrAdmin,)
+    permission_classes = (IsAdmin,)
 
 
 class SignUpUserView(APIView):
