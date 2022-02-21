@@ -16,10 +16,9 @@ class User(AbstractUser):
         choices=GROUPS,
         default='user'
     )
-    email = models.EmailField(('email address'))
 
     class Meta:
-        ordering = ['id']
+        ordering = ['id'] # Добавил порядок
         constraints = [
             models.UniqueConstraint(
                 fields=["email", "username"],

@@ -19,7 +19,8 @@ class GenreViewSet(CreateDeleteListViewset):
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     lookup_field = 'slug'
-    search_fields = ['name',]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
 
 
@@ -28,7 +29,8 @@ class CategoryViewSet(CreateDeleteListViewset):
     serializer_class = serializers.CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     lookup_field = 'slug'
-    search_fields = ['name',]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -75,7 +77,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
     pagination_class = PageNumberPagination
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAdmin,) # Изменил пермишн с IsAdminOrReadOnl.
 
 
 class SignUpUserView(APIView):
