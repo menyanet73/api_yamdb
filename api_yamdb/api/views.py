@@ -8,7 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api import serializers
-from api.permissions import IsUserOrAdmin
+from api.permissions import IsUserOrAdmin, IsAuthorOrAdminOrReadOnly
 from .viewsets import CreateDeleteListViewset
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from api_yamdb.settings import SIMPLE_JWT
@@ -26,7 +26,7 @@ class CategoryViewSet(CreateDeleteListViewset):
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
     search_fields = ['name',]
-    
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
@@ -36,6 +36,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ReviewSerializer
+    permission_classes = (IsAuthorOrAdminOrReadOnly,)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -51,6 +52,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
+    permission_classes = (IsAuthorOrAdminOrReadOnly,)
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
@@ -60,7 +62,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
         current_review = get_object_or_404(Review, pk=review_id)
-        serializer.save(review=current_review)
+        current_user = self.request.user
+        serializer.save(review=current_review, author=current_user)
 
 
 class UserViewSet(viewsets.ModelViewSet):
