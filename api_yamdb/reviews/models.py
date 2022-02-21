@@ -18,6 +18,7 @@ class User(AbstractUser):
     )
 
     class Meta:
+        ordering = ['id'] # Добавил порядок
         constraints = [
             models.UniqueConstraint(
                 fields=["email", "username"],
@@ -30,6 +31,9 @@ class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.CharField(max_length=50, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -37,6 +41,9 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -49,6 +56,9 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True)
     genre = models.ManyToManyField(Genre, through='GenreTitle')
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -75,7 +85,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-
+        ordering = ['-pub_date']
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
@@ -94,3 +104,6 @@ class Comment(models.Model):
         related_name='comments')
     text = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-pub_date']
