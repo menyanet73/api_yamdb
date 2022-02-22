@@ -14,7 +14,7 @@ from api.permissions import (
     IsAuthorOrAdminOrReadOnly,
     IsAdminOrReadOnly,
     IsAdmin)
-from .viewsets import CreateDeleteListViewset, RetrievDeleteViewSet
+from .viewsets import CreateDeleteListViewset, RetrieveUpdateViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from .filters import TitleFilter
 
@@ -140,8 +140,11 @@ class CreateUserToken(APIView):
         return Response(request.data, status=status.HTTP_404_NOT_FOUND)
 
 
-class UsersMeView(RetrievDeleteViewSet):
-    serializer = serializers.UserSerializer
+class UsersMeView(viewsets.ModelViewSet):
+    # queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsAdmin,)
 
-    def get_queryset(self):
-        pass
+    def get_queryset(self, request):
+        if self.kwargs['me']:
+            return User.objects.filter(username=request.user.username)
