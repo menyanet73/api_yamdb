@@ -120,6 +120,7 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'role'
         )
+        lookup_field = 'username'
         validators = [
             UniqueTogetherValidator(
                 queryset=User.objects.all(),

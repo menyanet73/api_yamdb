@@ -87,6 +87,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
+    lookup_field = 'username'
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,) # Изменил пермишн с IsAdminOrReadOnl.
 
