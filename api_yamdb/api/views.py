@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.contrib.auth.tokens import default_token_generator
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api import serializers
@@ -13,6 +14,7 @@ from api.permissions import (IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly,
 from .viewsets import CreateDeleteListViewset
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from api_yamdb.settings import SIMPLE_JWT
+from .filters import TitleFilter
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -36,6 +38,8 @@ class CategoryViewSet(CreateDeleteListViewset):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
