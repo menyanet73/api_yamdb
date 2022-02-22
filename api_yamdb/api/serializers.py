@@ -69,6 +69,13 @@ class ReviewSerializer(serializers.ModelSerializer):
             'pub_date',
         )
 
+    def validate(self, data):
+        author = self.context['request'].user
+        title = self.context['view'].kwargs.get('title_id')
+        if Review.objects.filter(title=title, author=author).exists():
+            serializers.ValidationError('Error')
+        return data
+
     def validate_score(self, score):
         if 1 <= score <= 10:
             return score
