@@ -1,31 +1,39 @@
 from datetime import datetime
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Title, Genre, Category, Review, Comment, User
 
 
+class GenreSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField()
+
+    class Meta:
+        model = Genre
+        fields = ['name', 'slug']
+        lookup_field = 'slug'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField()
+
+    class Meta:
+        model = Category
+        fields = ['name', 'slug']
+        lookup_field = 'slug'
+
+
 class TitleSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField()
     genre = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Genre.objects.all(),
-        many=True, required=False
+        slug_field='slug', queryset=Genre.objects.all(), many=True
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all(), required=False)
+        slug_field='slug', queryset=Category.objects.all())
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        queryset = obj.reviews.all()
-        rates = 0
-        for query in queryset:
-            rates += int(query.score)
-        if rates == 0:
-            return 0
-        return round(rates / len(queryset))
 
     def validate_year(self, year):
         if year > datetime.now().year:
@@ -34,23 +42,25 @@ class TitleSerializer(serializers.ModelSerializer):
             )
         return year
 
-
-class GenreSerializer(serializers.ModelSerializer):
-    slug = serializers.RegexField(regex='^[-a-zA-Z0-9_]+$')
-
-    class Meta:
-        model = Genre
-        fields = '__all__'
-        lookup_field = 'slug'
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.RegexField(regex='^[-a-zA-Z0-9_]+$')
+class TitleGetSerializer(serializers.ModelSerializer):
+    rating = serializers.SerializerMethodField()
+    genre = GenreSerializer(many=True, required=False)
+    category = CategorySerializer()
 
     class Meta:
-        model = Category
+        model = Title
         fields = '__all__'
-        lookup_field = 'slug'
+
+    def get_rating(self, obj):
+        queryset = obj.reviews.all()
+        rates = None
+        if queryset:
+            rates = 0
+        for query in queryset:
+            rates += int(query.score)
+        if rates is None:
+            return None
+        return round(rates / len(queryset))
 
 
 class ReviewSerializer(serializers.ModelSerializer):

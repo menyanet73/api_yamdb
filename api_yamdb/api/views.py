@@ -35,8 +35,13 @@ class CategoryViewSet(CreateDeleteListViewset):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = serializers.TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return serializers.TitleGetSerializer
+        else:
+            return serializers.TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
