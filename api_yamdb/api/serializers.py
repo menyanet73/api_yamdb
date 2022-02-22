@@ -131,6 +131,12 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
+    
+    def validate_email(self, email):
+        if self.context['view'].action == 'create':
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError('Пользователь с таким email уже существует')
+        return email
 
 
 class SignUpUserSerializer(serializers.ModelSerializer):
