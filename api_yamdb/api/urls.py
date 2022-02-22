@@ -20,6 +20,5 @@ router.register(
 urlpatterns = [
     path('auth/signup/', views.SignUpUserView.as_view()),
     path('auth/token/', views.CreateUserToken.as_view()),
-    # path('users/me/', views.UsersMeView.as_view(), name='me'),
     path('', include(router.urls)),
 ]

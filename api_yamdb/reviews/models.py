@@ -11,14 +11,19 @@ class User(AbstractUser):
     )
     role = models.CharField(
         'Роль',
-        max_length=50,
+        max_length=100,
         blank=True,
         choices=GROUPS,
         default='user'
     )
+    confirmation_code = models.CharField(
+        'Проверочный код',
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
-        ordering = ['id'] # Добавил порядок
+        ordering = ['id']   # Добавил порядок
         constraints = [
             models.UniqueConstraint(
                 fields=["email", "username"],
