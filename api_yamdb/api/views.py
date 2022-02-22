@@ -1,10 +1,11 @@
 from django.core.mail import send_mail
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, exceptions
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.contrib.auth.tokens import default_token_generator
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -15,6 +16,7 @@ from api.permissions import (
     IsAdmin)
 from .viewsets import CreateDeleteListViewset, RetrievDeleteViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
+from .filters import TitleFilter
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -37,8 +39,15 @@ class CategoryViewSet(CreateDeleteListViewset):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = serializers.TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return serializers.TitleGetSerializer
+        else:
+            return serializers.TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
