@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from reviews.models import Title, Genre, Category, Review, Comment, User
 
@@ -111,7 +111,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SignUpUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
         model = User
@@ -124,8 +126,10 @@ class SignUpUserSerializer(serializers.ModelSerializer):
 
 
 class TokenCreateSerializer(serializers.ModelSerializer):
+    queryset = User.objects.all()
     confirmation_code = serializers.CharField(source='password', required=True)
 
     class Meta:
         model = User
-        fields = ('email', 'confirmation_code')
+        fields = ('username', 'confirmation_code')
+        

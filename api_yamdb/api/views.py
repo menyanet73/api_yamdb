@@ -1,18 +1,20 @@
 from django.core.mail import send_mail
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework import viewsets, permissions, filters, status
+from rest_framework import viewsets, permissions, filters, status, exceptions
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api import serializers
-from api.permissions import (IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly,
-                            IsAdmin)
-from .viewsets import CreateDeleteListViewset
+from api.permissions import (
+    IsAuthorOrAdminOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAdmin)
+from .viewsets import CreateDeleteListViewset, RetrievDeleteViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
-from api_yamdb.settings import SIMPLE_JWT
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -87,6 +89,8 @@ class SignUpUserView(APIView):
         serializer = serializers.SignUpUserSerializer(data=request.data)
         registration_username = request.data.get('username')
         registrstion_email = request.data.get('email')
+        if registration_username == 'me':
+            raise exceptions.ValidationError
         if serializer.is_valid():
             serializer.save()
             email = serializer.validated_data['email']
@@ -108,19 +112,27 @@ class SignUpUserView(APIView):
 
 
 class CreateUserToken(APIView):
-    queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        serializer = serializers.TokenCreateSerializer(data=request.data)
-        unique_user = User.objects.get(
+        user = User.objects.filter(
+            username=request.data.get('username'),
             password=request.data.get('confirmation_code')
         )
-        if serializer.is_valid():
-            serializer.save()
-            token = RefreshToken.for_user(unique_user)
-            return Response(
-                {'access': str(token.access_token)},
-                status=status.HTTP_200_OK
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if user.exists():
+            try:
+                token = RefreshToken.for_user(user[0])
+                return Response(
+                    {'access': str(token.access_token)},
+                    status=status.HTTP_200_OK
+                )
+            except exceptions.ValidationError:
+                return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(request.data, status=status.HTTP_404_NOT_FOUND)
+
+
+class UsersMeView(RetrievDeleteViewSet):
+    serializer = serializers.UserSerializer
+
+    def get_queryset(self):
+        pass
