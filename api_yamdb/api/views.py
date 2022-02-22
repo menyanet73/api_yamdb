@@ -13,7 +13,7 @@ from api.permissions import (
     IsAuthorOrAdminOrReadOnly,
     IsAdminOrReadOnly,
     IsAdmin)
-from .viewsets import CreateDeleteListViewset
+from .viewsets import CreateDeleteListViewset, RetrievDeleteViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
 
 
@@ -120,9 +120,19 @@ class CreateUserToken(APIView):
             password=request.data.get('confirmation_code')
         )
         if user.exists():
-            token = RefreshToken.for_user(user[0])
-            return Response(
-                {'access': str(token.access_token)},
-                status=status.HTTP_200_OK
-            )
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            try:
+                token = RefreshToken.for_user(user[0])
+                return Response(
+                    {'access': str(token.access_token)},
+                    status=status.HTTP_200_OK
+                )
+            except exceptions.ValidationError:
+                return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(request.data, status=status.HTTP_404_NOT_FOUND)
+
+
+class UsersMeView(RetrievDeleteViewSet):
+    serializer = serializers.UserSerializer
+
+    def get_queryset(self):
+        pass

@@ -124,11 +124,6 @@ class SignUpUserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can't create exist user.")
         return username
 
-    def validate_email(self, email):
-        if self.context.get("email") == email:
-            raise serializers.ValidationError("You can't create exist user.")
-        return email
-
 
 class TokenCreateSerializer(serializers.ModelSerializer):
     queryset = User.objects.all()

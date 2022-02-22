@@ -8,3 +8,7 @@ class CreateDeleteListViewset(mixins.CreateModelMixin,
                                 viewsets.GenericViewSet):
     pagination_class = PageNumberPagination
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+
+class RetrievDeleteViewSet(mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+    pass
