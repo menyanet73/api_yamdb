@@ -7,7 +7,9 @@ from reviews.models import Title, Genre, Category, Review, Comment, User
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField()
+    slug = serializers.SlugField(
+        validators=[UniqueValidator(queryset=Genre.objects.all())]
+    )
 
     class Meta:
         model = Genre
@@ -16,7 +18,9 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField()
+    slug = serializers.SlugField(
+        validators=[UniqueValidator(queryset=Category.objects.all())]
+    )
 
     class Meta:
         model = Category
