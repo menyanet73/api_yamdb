@@ -10,5 +10,5 @@ class CreateDeleteListViewset(mixins.CreateModelMixin,
     # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
-class RetrievDeleteViewSet(mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+class RetrieveUpdateViewSet(mixins.RetrieveModelMixin,mixins.UpdateModelMixin):
     pass

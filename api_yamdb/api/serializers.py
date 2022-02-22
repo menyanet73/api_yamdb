@@ -156,7 +156,7 @@ class SignUpUserSerializer(serializers.ModelSerializer):
 
 class TokenCreateSerializer(serializers.ModelSerializer):
     queryset = User.objects.all()
-    confirmation_code = serializers.CharField(source='password', required=True)
+    # confirmation_code = serializers.CharField(required=True)
 
     class Meta:
         model = User

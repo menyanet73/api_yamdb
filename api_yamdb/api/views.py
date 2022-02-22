@@ -14,7 +14,7 @@ from api.permissions import (
     IsAuthorOrAdminOrReadOnly,
     IsAdminOrReadOnly,
     IsAdmin)
-from .viewsets import CreateDeleteListViewset, RetrievDeleteViewSet
+from .viewsets import CreateDeleteListViewset, RetrieveUpdateViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from .filters import TitleFilter
 
@@ -106,7 +106,7 @@ class SignUpUserView(APIView):
             email = serializer.validated_data['email']
             user = User.objects.get(username=registration_username)
             confirmation_code = default_token_generator.make_token(user)
-            user.password = confirmation_code
+            user.confirmation_code = confirmation_code
             user.save()
             send_mail(
                 subject='Код подтверждения регистрации.',
@@ -125,24 +125,24 @@ class CreateUserToken(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        user = User.objects.filter(
-            username=request.data.get('username'),
-            password=request.data.get('confirmation_code')
+        serializer = serializers.TokenCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        confirmation_code = serializer.validated_data['confirmation_code']
+        user = get_object_or_404(User, username=username)
+        if confirmation_code != user.confirmation_code:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        token = RefreshToken.for_user(user)
+        return Response(
+            {'token': str(token.access_token)},
+            status=status.HTTP_200_OK
         )
-        if user.exists():
-            try:
-                token = RefreshToken.for_user(user[0])
-                return Response(
-                    {'access': str(token.access_token)},
-                    status=status.HTTP_200_OK
-                )
-            except exceptions.ValidationError:
-                return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
-        return Response(request.data, status=status.HTTP_404_NOT_FOUND)
 
+class UsersMeView(viewsets.ModelViewSet):
+    # queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsAdmin,)
 
-class UsersMeView(RetrievDeleteViewSet):
-    serializer = serializers.UserSerializer
-
-    def get_queryset(self):
-        pass
+    def get_queryset(self, request):
+        if self.kwargs['me']:
+            return User.objects.filter(username=request.user.username)
