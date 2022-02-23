@@ -1,7 +1,22 @@
+import codecs
 import csv
+from datetime import datetime as dt
 
 from django.core.management.base import BaseCommand
-from reviews.models import Category
+from reviews import models
+
+
+model_names = {
+    'category': 'Category',
+    'comments': 'Comment',
+    'genre_title': 'GenreTitle',
+    'genre': 'Genre',
+    'review': 'Review',
+    'titles': 'Title',
+    'users': 'User',
+}
+
+int_fields = ['year', 'pub_date', 'category', 'genre', 'author', 'score']
 
 
 class Command(BaseCommand):
@@ -12,10 +27,38 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file = options['file']
+        file_name = file.partition('.')[0]
         path = f'static/data/{file}'
-        with open(path, newline='') as f:
+        with codecs.open(path, encoding='utf-8') as f:
             reader = csv.reader(f)
-            reader.__next__()
+            headers = next(reader)
+
+            ''' Определение имен для орм команды '''
+            model = model_names[f'{file_name}']
+            method = 'create'
+
+            ''' Определение полей указываемых в модели'''
+            print(headers)
             for row in reader:
-                print(row)
-                Category.objects.create(name=row[1], slug=row[2])
+                fields = ''
+                string_orm = ''
+                for header, field in zip(headers, row):
+                    if 'id' in header or header in int_fields:
+                        if header in ['category', 'genre', 'author']:
+                            header += '_id'
+                            print(header)
+                    elif header == 'text':
+                        textfield = f'"{field}"'
+                        fields += f'{header}=textfield, '
+                        continue
+                    else:
+                        field = f'"{field}"'
+                    if header == 'pub_date':
+                        datefield = dt.strptime(field, '%Y-%m-%dT%H:%M:%S.%fZ')
+                        fields += f'{header}=datefield, '
+                        continue
+                    fields += f'{header}={field}, '
+                fields = fields[:-2]  # Удаление последней запятой
+                string_orm = f'models.{model}.objects.{method}({fields})'
+                print(string_orm)
+                exec(string_orm)
