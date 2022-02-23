@@ -23,11 +23,11 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ['id']   # Добавил порядок
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
-                fields=["email", "username"],
-                name="unique_auth"
+                fields=['email', 'username'],
+                name='unique_auth'
             ),
         ]
 

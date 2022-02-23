@@ -1,14 +1,16 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
+from .permissions import IsAdminOrReadOnly
 
 
 class CreateDeleteListViewset(mixins.CreateModelMixin,
-                                mixins.DestroyModelMixin,
-                                mixins.ListModelMixin,
-                                viewsets.GenericViewSet):
+                              mixins.DestroyModelMixin,
+                              mixins.ListModelMixin,
+                              viewsets.GenericViewSet):
     pagination_class = PageNumberPagination
-    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
 
 
-class RetrieveUpdateViewSet(mixins.RetrieveModelMixin,mixins.UpdateModelMixin):
+class RetrieveUpdateViewSet(mixins.RetrieveModelMixin,
+                            mixins.UpdateModelMixin):
     pass
