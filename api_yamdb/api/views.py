@@ -1,3 +1,4 @@
+from cgitb import lookup
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status, exceptions
@@ -8,12 +9,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 
 from api import serializers
 from api.permissions import (
     IsAuthorOrAdminOrReadOnly,
     IsAdminOrReadOnly,
-    IsAdmin)
+    IsAdmin,    )
 from .viewsets import CreateDeleteListViewset, RetrieveUpdateViewSet
 from reviews.models import Title, Genre, Category, Review, Comment, User
 from .filters import TitleFilter
@@ -140,10 +142,24 @@ class CreateUserToken(APIView):
 
 
 class UsersMeView(viewsets.ModelViewSet):
-    # queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
-    permission_classes = (IsAdmin,)
+    permission_classes = (permissions.IsAuthenticated,)
+    pagination_class = None
+    lookup_field = 'username'
 
-    def get_queryset(self, request):
-        if self.kwargs['me']:
-            return User.objects.filter(username=request.user.username)
+    def get_queryset(self):
+        queryset = User.objects.all()
+        user = self.request.user
+        queryset = queryset.filter(username=user.username)
+        return queryset
+
+    def list(self, request):
+        user = request.user
+        serializer = serializers.UserSerializer(user)
+        return Response(serializer.data)
+
+    def partial_update(self, request):
+        serializer = serializers.UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(request.data, status=status.HTTP_200_OK)
