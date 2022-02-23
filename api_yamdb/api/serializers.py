@@ -114,6 +114,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = User
         fields = (
@@ -131,7 +132,7 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
-    
+
     def validate_email(self, email):
         if self.context['view'].action == 'create':
             if User.objects.filter(email=email).exists():
@@ -161,4 +162,3 @@ class TokenCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
-        
