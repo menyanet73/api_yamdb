@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
@@ -46,6 +45,7 @@ class TitleSerializer(serializers.ModelSerializer):
             )
         return year
 
+
 class TitleGetSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     genre = GenreSerializer(many=True, required=False)
@@ -88,7 +88,8 @@ class ReviewSerializer(serializers.ModelSerializer):
             author = self.context['request'].user
             title = self.context['view'].kwargs.get('title_id')
             if Review.objects.filter(title=title, author=author).exists():
-                raise serializers.ValidationError('Уже есть отзыв от этого пользователя на этот фильм')
+                raise serializers.ValidationError(
+                    'Уже есть отзыв от этого пользователя на этот фильм')
         return data
 
     def validate_score(self, score):
@@ -136,7 +137,8 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, email):
         if self.context['view'].action == 'create':
             if User.objects.filter(email=email).exists():
-                raise serializers.ValidationError('Пользователь с таким email уже существует')
+                raise serializers.ValidationError(
+                    'Пользователь с таким email уже существует')
         return email
 
 
@@ -150,8 +152,9 @@ class SignUpUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
     def validate_username(self, username):
-        if self.context.get("username") == username:
-            raise serializers.ValidationError("You can't create exist user.")
+        if self.context.get('username') == username:
+            raise serializers.ValidationError(
+                'Пользователь с таким username уже существует')
         return username
 
 

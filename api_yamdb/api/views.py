@@ -27,13 +27,11 @@ class GenreViewSet(CreateDeleteListViewset):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CategoryViewSet(CreateDeleteListViewset):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -88,10 +86,10 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("username",)
+    search_fields = ('username',)
     lookup_field = 'username'
     pagination_class = PageNumberPagination
-    permission_classes = (IsAdmin,) # Изменил пермишн с IsAdminOrReadOnl.
+    permission_classes = (IsAdmin,)
 
 
 class SignUpUserView(APIView):
@@ -117,9 +115,11 @@ class SignUpUserView(APIView):
                 recipient_list=[email],
                 fail_silently=False,
             )
-            return Response(
-                {'email': registrstion_email, 'username': registration_username},
-                status=status.HTTP_200_OK)
+            return Response({
+                            'email': registrstion_email,
+                            'username': registration_username
+                            },
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
