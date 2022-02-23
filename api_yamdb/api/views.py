@@ -25,13 +25,11 @@ class GenreViewSet(CreateDeleteListViewset):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CategoryViewSet(CreateDeleteListViewset):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
