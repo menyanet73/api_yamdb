@@ -63,3 +63,7 @@ class Command(BaseCommand):
                     string_orm = f'models.{model}.objects.{method}({fields})'
                     print(string_orm)
                     exec(string_orm)
+                    """ flake8 считает следующие переменные неиспользуемыми."""
+                    models
+                    datefield
+                    textfield
