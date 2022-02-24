@@ -26,6 +26,7 @@ class Command(BaseCommand):
     help = 'Import csv file'
 
     def handle(self, *args, **options):
+        
         for file in files:
             file_name = file.partition('.')[0]
             path = f'static/data/{file}'
@@ -63,3 +64,7 @@ class Command(BaseCommand):
                     string_orm = f'models.{model}.objects.{method}({fields})'
                     print(string_orm)
                     exec(string_orm)
+                    """ flake8 считает следующие переменные неиспользуемыми."""
+                    models
+                    datefield
+                    textfield
