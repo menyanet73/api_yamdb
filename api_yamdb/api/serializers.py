@@ -1,8 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-
-from reviews.models import Title, Genre, Category, Review, Comment, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -115,7 +114,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = User
         fields = (
@@ -133,6 +132,7 @@ class UserSerializer(serializers.ModelSerializer):
                 fields=['username', 'email']
             )
         ]
+        read_only_fields = ('role',)
 
     def validate_email(self, email):
         if self.context['view'].action == 'create':
@@ -160,8 +160,35 @@ class SignUpUserSerializer(serializers.ModelSerializer):
 
 class TokenCreateSerializer(serializers.ModelSerializer):
     queryset = User.objects.all()
-    # confirmation_code = serializers.CharField(required=True)
 
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+
+
+class AdminSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        lookup_field = 'username'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=['username', 'email']
+            )
+        ]
+
+    def validate_email(self, email):
+        if self.context['view'].action == 'create':
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError(
+                    'Пользователь с таким email уже существует')
+        return email

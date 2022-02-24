@@ -1,24 +1,22 @@
-from cgitb import lookup
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, filters, status, exceptions
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.views import APIView
-from django.contrib.auth.tokens import default_token_generator
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework_simplejwt.tokens import RefreshToken
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import exceptions, filters, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 from api import serializers
 from api.permissions import (
-    IsAuthorOrAdminOrReadOnly,
+    IsAdmin,
     IsAdminOrReadOnly,
-    IsAdmin,    )
-from .viewsets import CreateDeleteListViewset, RetrieveUpdateViewSet
-from reviews.models import Title, Genre, Category, Review, Comment, User
+    IsAuthorOrAdminOrReadOnly)
 from .filters import TitleFilter
+from .viewsets import CreateDeleteListViewset
 
 
 class GenreViewSet(CreateDeleteListViewset):
@@ -91,6 +89,31 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
 
+    def get_serializer_class(self):
+        if (self.request.user.role in ['admin']
+                or self.request.user.is_superuser):
+            return serializers.AdminSerializer
+        else:
+            return serializers.UserSerializer
+
+    @action(
+        methods=['GET', 'PATCH'],
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def me(self, request):
+        user = request.user
+        if request.method == 'GET':
+            serializer = serializers.UserSerializer(user)
+            return Response(serializer.data)
+        if request.method == 'PATCH':
+            serializer = serializers.UserSerializer(
+                user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
 
 class SignUpUserView(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -115,11 +138,12 @@ class SignUpUserView(APIView):
                 recipient_list=[email],
                 fail_silently=False,
             )
-            return Response({
-                            'email': registrstion_email,
-                            'username': registration_username
-                            },
-                            status=status.HTTP_200_OK)
+            return Response(
+                {
+                    'email': registrstion_email,
+                    'username': registration_username
+                },
+                status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -128,38 +152,13 @@ class CreateUserToken(APIView):
 
     def post(self, request):
         serializer = serializers.TokenCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        confirmation_code = serializer.validated_data['confirmation_code']
-        user = get_object_or_404(User, username=username)
-        if confirmation_code != user.confirmation_code:
+        if not serializer.is_valid():
+            raise exceptions.ValidationError(serializer.errors)
+        user = get_object_or_404(User, username=self.request.data['username'])
+        if request.data['confirmation_code'] != user.confirmation_code:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         token = RefreshToken.for_user(user)
         return Response(
             {'token': str(token.access_token)},
             status=status.HTTP_200_OK
         )
-
-
-class UsersMeView(viewsets.ModelViewSet):
-    serializer_class = serializers.UserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    pagination_class = None
-    lookup_field = 'username'
-
-    def get_queryset(self):
-        queryset = User.objects.all()
-        user = self.request.user
-        queryset = queryset.filter(username=user.username)
-        return queryset
-
-    def list(self, request):
-        user = request.user
-        serializer = serializers.UserSerializer(user)
-        return Response(serializer.data)
-
-    def partial_update(self, request):
-        serializer = serializers.UserSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-        return Response(request.data, status=status.HTTP_200_OK)

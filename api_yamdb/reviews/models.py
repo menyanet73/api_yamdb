@@ -5,6 +5,7 @@ from api_yamdb.settings import GROUPS
 
 
 class User(AbstractUser):
+    '''Кастомная модель User'''
     bio = models.TextField(
         'Биография',
         blank=True,
