@@ -13,7 +13,6 @@ class CreateDeleteListViewset(
     permission_classes = (IsAdminOrReadOnly,)
 
 
-
 class RetrieveUpdateViewSet(
     mixins.ListModelMixin,
     mixins.UpdateModelMixin,
