@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from reviews.models import Category, Comment, Genre, Review, Title, User
@@ -153,8 +152,9 @@ class SignUpUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
     def validate_username(self, username):
-        if self.context.get("username") == username:
-            raise serializers.ValidationError("You can't create exist user.")
+        if self.context.get('username') == username:
+            raise serializers.ValidationError(
+                'Пользователь с таким username уже существует')
         return username
 
 
