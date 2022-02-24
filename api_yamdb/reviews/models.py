@@ -5,6 +5,7 @@ from api_yamdb.settings import GROUPS
 
 
 class User(AbstractUser):
+    '''Кастомная модель User'''
     bio = models.TextField(
         'Биография',
         blank=True,
@@ -23,7 +24,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ['id']   # Добавил порядок
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
                 fields=["email", "username"],

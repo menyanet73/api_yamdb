@@ -1,9 +1,8 @@
 from datetime import datetime
-from django.db.models import Avg
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-
-from reviews.models import Title, Genre, Category, Review, Comment, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -45,6 +44,7 @@ class TitleSerializer(serializers.ModelSerializer):
                 'Нельзя добавлять произведения, которые еще не созданы.'
             )
         return year
+
 
 class TitleGetSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
@@ -88,7 +88,8 @@ class ReviewSerializer(serializers.ModelSerializer):
             author = self.context['request'].user
             title = self.context['view'].kwargs.get('title_id')
             if Review.objects.filter(title=title, author=author).exists():
-                raise serializers.ValidationError('Уже есть отзыв от этого пользователя на этот фильм')
+                raise serializers.ValidationError(
+                    'Уже есть отзыв от этого пользователя на этот фильм')
         return data
 
     def validate_score(self, score):
@@ -114,7 +115,59 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        lookup_field = 'username'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=['username', 'email']
+            )
+        ]
+        read_only_fields = ('role',)
+
+    def validate_email(self, email):
+        if self.context['view'].action == 'create':
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError(
+                    'Пользователь с таким email уже существует')
+        return email
+
+
+class SignUpUserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())])
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+    def validate_username(self, username):
+        if self.context.get("username") == username:
+            raise serializers.ValidationError("You can't create exist user.")
+        return username
+
+
+class TokenCreateSerializer(serializers.ModelSerializer):
+    queryset = User.objects.all()
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+
+
+class AdminSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -136,29 +189,6 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, email):
         if self.context['view'].action == 'create':
             if User.objects.filter(email=email).exists():
-                raise serializers.ValidationError('Пользователь с таким email уже существует')
+                raise serializers.ValidationError(
+                    'Пользователь с таким email уже существует')
         return email
-
-
-class SignUpUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())])
-
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-    def validate_username(self, username):
-        if self.context.get("username") == username:
-            raise serializers.ValidationError("You can't create exist user.")
-        return username
-
-
-class TokenCreateSerializer(serializers.ModelSerializer):
-    queryset = User.objects.all()
-    # confirmation_code = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
