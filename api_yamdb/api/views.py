@@ -9,19 +9,18 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews import models
 
 from api import serializers
-from api.permissions import (
-    IsAdmin,
-    IsAdminOrReadOnly,
-    IsAuthorOrAdminOrReadOnly)
+from api.permissions import (IsAdmin, IsAdminOrReadOnly,
+                             IsAuthorOrAdminOrReadOnly)
+
 from .filters import TitleFilter
 from .viewsets import CreateDeleteListViewset
 
 
 class GenreViewSet(CreateDeleteListViewset):
-    queryset = Genre.objects.all()
+    queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
@@ -29,7 +28,7 @@ class GenreViewSet(CreateDeleteListViewset):
 
 
 class CategoryViewSet(CreateDeleteListViewset):
-    queryset = Category.objects.all()
+    queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
@@ -37,7 +36,7 @@ class CategoryViewSet(CreateDeleteListViewset):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
+    queryset = models.Title.objects.all().annotate(
         rating=Avg('reviews__score')).order_by('id')
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -56,12 +55,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
-        queryset = Review.objects.filter(title=title_id)
+        queryset = models.Review.objects.filter(title=title_id)
         return queryset
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
-        current_title = get_object_or_404(Title, pk=title_id)
+        current_title = get_object_or_404(models.Title, pk=title_id)
         current_user = self.request.user
         serializer.save(title=current_title, author=current_user)
 
@@ -72,18 +71,18 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
-        queryset = Comment.objects.filter(review=review_id)
+        queryset = models.Comment.objects.filter(review=review_id)
         return queryset
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
-        current_review = get_object_or_404(Review, pk=review_id)
+        current_review = get_object_or_404(models.Review, pk=review_id)
         current_user = self.request.user
         serializer.save(review=current_review, author=current_user)
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -129,7 +128,7 @@ class SignUpUserView(APIView):
         if serializer.is_valid():
             serializer.save()
             email = serializer.validated_data['email']
-            user = User.objects.get(username=registration_username)
+            user = models.User.objects.get(username=registration_username)
             confirmation_code = default_token_generator.make_token(user)
             user.confirmation_code = confirmation_code
             user.save()
@@ -156,7 +155,8 @@ class CreateUserToken(APIView):
         serializer = serializers.TokenCreateSerializer(data=request.data)
         if not serializer.is_valid():
             raise exceptions.ValidationError(serializer.errors)
-        user = get_object_or_404(User, username=self.request.data['username'])
+        user = get_object_or_404(
+            models.User, username=self.request.data['username'])
         if request.data['confirmation_code'] != user.confirmation_code:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         token = RefreshToken.for_user(user)

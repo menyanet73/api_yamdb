@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import Title, Genre, Category, User
+from . import models
 
 
-admin.site.register(Title)
-admin.site.register(Genre)
-admin.site.register(Category)
-admin.site.register(User)
+admin.site.register(models.Title)
+admin.site.register(models.Genre)
+admin.site.register(models.Category)
+admin.site.register(models.User)
