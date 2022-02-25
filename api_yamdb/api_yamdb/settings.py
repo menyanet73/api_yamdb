@@ -129,3 +129,9 @@ GROUPS = [('user', 'user'), ('moderator', 'moderator'), ('admin', 'admin')]
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'tmp/email-messages')
+
+ADMIN = 'admin'
+
+MODERATOR = 'moderator'
+
+STAFF_ROLES = [ADMIN, MODERATOR]
