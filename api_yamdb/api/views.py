@@ -121,9 +121,8 @@ class SignUpUserView(APIView):
 
     def post(self, request):
         serializer = serializers.SignUpUserSerializer(data=request.data)
-        registration_username = request.data.get('username')
-        registrstion_email = request.data.get('email')
         serializer.is_valid(raise_exception=True)
+        registration_username = serializer.validated_data['username']
         serializer.save()
         email = serializer.validated_data['email']
         user = get_object_or_404(models.User, username=registration_username)
@@ -139,7 +138,7 @@ class SignUpUserView(APIView):
         )
         return Response(
             {
-                'email': registrstion_email,
+                'email': email,
                 'username': registration_username
             },
             status=status.HTTP_200_OK)
