@@ -137,6 +137,9 @@ class SignUpUserSerializer(serializers.ModelSerializer):
         if self.context.get('username') == username:
             raise serializers.ValidationError(
                 'Пользователь с таким username уже существует')
+        if username == 'me':
+            raise serializers.ValidationError(
+                'Нельзя использовать username me')
         return username
 
 

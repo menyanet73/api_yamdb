@@ -123,8 +123,6 @@ class SignUpUserView(APIView):
         serializer = serializers.SignUpUserSerializer(data=request.data)
         registration_username = request.data.get('username')
         registrstion_email = request.data.get('email')
-        if registration_username == 'me':
-            raise exceptions.ValidationError
         if serializer.is_valid():
             serializer.save()
             email = serializer.validated_data['email']
