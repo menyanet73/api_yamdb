@@ -7,12 +7,12 @@ class TitleAdmin(admin.ModelAdmin):
     list_display = ('name', 'year', 'category', 'description')
     list_filter = ('category', 'genre')
     search_fields = ('name', 'year', 'description')
-    
 
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'confirmation_code', 'role')
     list_filter = ('role',)
+
 
 class GenreAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
