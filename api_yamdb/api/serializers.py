@@ -55,15 +55,7 @@ class TitleGetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rating(self, obj):
-        queryset = obj.reviews.all()
-        rates = None
-        if queryset:
-            rates = 0
-        for query in queryset:
-            rates += int(query.score)
-        if rates is None:
-            return None
-        return round(rates / len(queryset))
+        return obj.rating
 
 
 class ReviewSerializer(serializers.ModelSerializer):

@@ -73,7 +73,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre, related_name='titles')
 
     class Meta:
-        ordering = ['name']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
