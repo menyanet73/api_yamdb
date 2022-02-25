@@ -34,12 +34,13 @@ class Command(BaseCommand):
             with codecs.open(path, encoding='utf-8') as f:
                 reader = csv.reader(f)
                 headers = next(reader)
-                
+
                 """ Исключение - файл не имеющий собственной модели """
                 if file == 'genre_title.csv':
                     for row in reader:
                         title = get_object_or_404(models.Title, id=row[1])
-                        title.genre.add(get_object_or_404(models.Genre,id=row[2]))
+                        title.genre.add(
+                            get_object_or_404(models.Genre, id=row[2]))
 
                 ''' Определение имен для орм команды '''
                 model = model_names[f'{file_name}']
@@ -71,4 +72,3 @@ class Command(BaseCommand):
                     string_orm = f'models.{model}.objects.{method}({fields})'
                     print(string_orm)
                     exec(string_orm)
-                    
