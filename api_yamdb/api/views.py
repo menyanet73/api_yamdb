@@ -152,8 +152,9 @@ class CreateUserToken(APIView):
         serializer = serializers.TokenCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
-            models.User, username=self.request.data['username'])
-        if request.data['confirmation_code'] != user.confirmation_code:
+            models.User, username=serializer.validated_data['username'])
+        if (serializer.validated_data['confirmation_code']
+                != user.confirmation_code):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         token = RefreshToken.for_user(user)
         return Response(
