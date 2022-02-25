@@ -102,6 +102,9 @@ class Review(models.Model):
         ]
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
+        
+    def __str__(self) -> str:
+        return f'Обзор на {self.title.name}'
 
 
 class Comment(models.Model):
