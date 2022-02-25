@@ -11,7 +11,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ['name', 'slug']
+        exclude = ['id', ]
         lookup_field = 'slug'
 
 
@@ -22,7 +22,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['name', 'slug']
+        exclude = ['id', ]
         lookup_field = 'slug'
 
 
@@ -66,13 +66,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = (
-            'id',
-            'text',
-            'author',
-            'score',
-            'pub_date',
-        )
+        exclude = ['title', ]
 
     def validate(self, data):
         if self.context['view'].action == 'create':
@@ -97,26 +91,21 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = (
-            'id',
-            'text',
-            'author',
-            'pub_date',
-        )
+        exclude = ['review', ]
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
+        fields = [
             'username',
             'email',
             'first_name',
             'last_name',
             'bio',
             'role'
-        )
+        ]
         lookup_field = 'username'
         validators = [
             UniqueTogetherValidator(
