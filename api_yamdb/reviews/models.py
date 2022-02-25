@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator
 from django.db import models
+from django.utils import timezone
 
 from api_yamdb.settings import GROUPS
 
@@ -57,7 +59,8 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField()
+    year = models.IntegerField(
+        validators=[MaxValueValidator(timezone.now().year)])
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True)
