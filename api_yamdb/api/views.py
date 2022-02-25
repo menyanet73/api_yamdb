@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import exceptions, filters, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -123,27 +123,26 @@ class SignUpUserView(APIView):
         serializer = serializers.SignUpUserSerializer(data=request.data)
         registration_username = request.data.get('username')
         registrstion_email = request.data.get('email')
-        if serializer.is_valid():
-            serializer.save()
-            email = serializer.validated_data['email']
-            user = models.User.objects.get(username=registration_username)
-            confirmation_code = default_token_generator.make_token(user)
-            user.confirmation_code = confirmation_code
-            user.save()
-            send_mail(
-                subject='Код подтверждения регистрации.',
-                message=f'Ваш код для регистрации: {confirmation_code}',
-                from_email='test@mail.com',
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            return Response(
-                {
-                    'email': registrstion_email,
-                    'username': registration_username
-                },
-                status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        email = serializer.validated_data['email']
+        user = get_object_or_404(models.User, username=registration_username)
+        confirmation_code = default_token_generator.make_token(user)
+        user.confirmation_code = confirmation_code
+        user.save()
+        send_mail(
+            subject='Код подтверждения регистрации.',
+            message=f'Ваш код для регистрации: {confirmation_code}',
+            from_email='test@mail.com',
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        return Response(
+            {
+                'email': registrstion_email,
+                'username': registration_username
+            },
+            status=status.HTTP_200_OK)
 
 
 class CreateUserToken(APIView):
@@ -151,8 +150,7 @@ class CreateUserToken(APIView):
 
     def post(self, request):
         serializer = serializers.TokenCreateSerializer(data=request.data)
-        if not serializer.is_valid():
-            raise exceptions.ValidationError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
             models.User, username=self.request.data['username'])
         if request.data['confirmation_code'] != user.confirmation_code:
