@@ -9,6 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from api_yamdb.settings import ADMIN_EMAIL
 from reviews import models
 
 from api import serializers
@@ -132,7 +133,7 @@ class SignUpUserView(APIView):
         send_mail(
             subject='Код подтверждения регистрации.',
             message=f'Ваш код для регистрации: {confirmation_code}',
-            from_email='test@mail.com',
+            from_email=ADMIN_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )

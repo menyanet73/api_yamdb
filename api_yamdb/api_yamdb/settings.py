@@ -135,3 +135,5 @@ ADMIN = 'admin'
 MODERATOR = 'moderator'
 
 STAFF_ROLES = [ADMIN, MODERATOR]
+
+ADMIN_EMAIL = 'admin@api_yamdb.com'
