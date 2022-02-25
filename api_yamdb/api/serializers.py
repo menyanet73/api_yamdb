@@ -1,5 +1,5 @@
-from datetime import datetime
 from rest_framework import serializers
+from django.utils import timezone
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -38,7 +38,7 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_year(self, year):
-        if year > datetime.now().year:
+        if year > timezone.now().year:
             raise serializers.ValidationError(
                 'Нельзя добавлять произведения, которые еще не созданы.'
             )
