@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+
 from reviews import models
 
 
@@ -46,16 +47,13 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
     genre = GenreSerializer(many=True, required=False)
     category = CategorySerializer()
 
     class Meta:
         model = models.Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        return obj.rating
 
 
 class ReviewSerializer(serializers.ModelSerializer):

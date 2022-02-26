@@ -9,15 +9,14 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from api_yamdb.settings import ADMIN_EMAIL
-from reviews import models
 
+from api_yamdb.settings import ADMIN_EMAIL
 from api import serializers
 from api.permissions import (IsAdmin, IsAdminOrReadOnly,
                              IsAuthorOrAdminOrReadOnly)
-
 from .filters import TitleFilter
 from .viewsets import CreateDeleteListViewset
+from reviews import models
 
 
 class GenreViewSet(CreateDeleteListViewset):
