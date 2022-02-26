@@ -130,6 +130,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'tmp/email-messages')
 
+USER = 'user'
+
 ADMIN = 'admin'
 
 MODERATOR = 'moderator'

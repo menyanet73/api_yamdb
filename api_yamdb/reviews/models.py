@@ -1,9 +1,8 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 
-from api_yamdb.settings import GROUPS
+from api_yamdb.settings import GROUPS, USER
 
 
 class User(AbstractUser):
@@ -17,7 +16,7 @@ class User(AbstractUser):
         max_length=100,
         blank=True,
         choices=GROUPS,
-        default='user'
+        default=USER
     )
     confirmation_code = models.CharField(
         'Проверочный код',
@@ -65,8 +64,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField(
-        validators=[MaxValueValidator(timezone.now().year)])
+    year = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True)
@@ -75,6 +73,11 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(year__lte=timezone.now().year),
+                name='year_lte_now'),
+        ]
 
     def __str__(self):
         return self.name
@@ -88,9 +91,7 @@ class Review(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='reviews')
-    score = models.IntegerField(
-        validators=[MinValueValidator(1, 'Оценка не может быть меньше 1'),
-                    MaxValueValidator(10, 'Оценка не может быть больше 10')])
+    score = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -99,6 +100,9 @@ class Review(models.Model):
             models.UniqueConstraint(
                 fields=['author', 'title'],
                 name='single_review_per_user'),
+            models.CheckConstraint(
+                check=models.Q(score__range=(1, 10)),
+                name='score_between_1-10'),
         ]
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
