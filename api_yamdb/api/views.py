@@ -19,7 +19,6 @@ from .viewsets import CreateDeleteListViewset
 from reviews import models
 
 
-
 class GenreViewSet(CreateDeleteListViewset):
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
