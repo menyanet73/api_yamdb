@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 from api_yamdb.settings import GROUPS, USER
+from .validators import less_then_now_year_validator
 
 
 class User(AbstractUser):
@@ -64,7 +65,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField()
+    year = models.IntegerField(validators=[less_then_now_year_validator])
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name='titles', null=True)
