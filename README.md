@@ -1,5 +1,7 @@
 # Yamdb API
-Project with titles, scores, and reviews for it.
+Project with titles, scores, and reviews for it. Auth by jwt.
+
+Stack: Python 3, Django 2.2, DRF, PyJWT
 ### How start project:
 
 Clone a repository and go to command line:
