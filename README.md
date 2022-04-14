@@ -9,7 +9,7 @@ Python 3, Django 2.2, DRF, PyJWT
 Clone a repository and go to command line:
 
 ```sh
-git clone git@github.com:menyanet73/api_yamdb.git
+git clone https://github.com/menyanet73/api_yamdb.git
 ```
 
 ```sh
@@ -41,6 +41,11 @@ pip install -r requirements.txt
 ```
 
 Apply migrations:
+
+
+```sh
+cd api_yamdb
+```
 
 ```sh
 python3 manage.py migrate
